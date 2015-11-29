@@ -4,7 +4,6 @@ import java.util.ArrayList;
 
 public class Processor {
 
-	private int test;
 	
 	
 	private int rank;
