@@ -30,28 +30,33 @@ public class Algorithm {
 	public static int generateAlgorithm(){
 		Random r = new Random();
 		double randomValue = rangeMin + (rangeMax - rangeMin) * r.nextDouble();
-		new Algorithm(randomValue/10, randomValue);
+		new Algorithm(randomValue/10, 200, randomValue);
 		return factory.size()-1;
 	}
 	
 	public static int generateAlgorithm(int value){
-		new Algorithm(rangeMax/10 + value*20, (rangeMin+value*100));
+		new Algorithm(rangeMax/10 + value*20, 200, (rangeMin+value*100));
 		return factory.size()-1;
 	}
 	
 	
 	
 	double communicationCost;
-	double runTime;
+	double sequentialTime;
+	double stepTime;
 	
-	public Algorithm(double communicationCost, double runTime){
+	public Algorithm(double communicationCost, double sequentialTime, double stepTime){
+		if (factory == null){
+			Algorithm.getFactory();
+		}
 		this.communicationCost = communicationCost;
-		this.runTime = runTime;
+		this.sequentialTime = sequentialTime;
+		this.stepTime = stepTime;
 		factory.add(this);
 	}
 	
 	public String toString(){
-		return "Communication cost: " + this.communicationCost + " Runtime: " + this.runTime;
+		return "Communication cost: " + this.communicationCost + " Step time: " + this.stepTime;
 	}
 	
 	

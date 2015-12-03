@@ -2,6 +2,7 @@ package com.tabletop.uta.apptopology;
 
 import java.util.ArrayList;
 import java.util.Random;
+import com.tabletop.uta.machtopology.Processor;
 
 public class WorkLoad {
 
@@ -43,6 +44,9 @@ public class WorkLoad {
 	double grainAmount;
 	
 	public WorkLoad(double grainSize, double grainAmount){
+		if (factory == null){
+			WorkLoad.getFactory();
+		}
 		this.grainSize = grainSize;
 		this.grainAmount = grainAmount;
 		factory.add(this);
@@ -50,6 +54,28 @@ public class WorkLoad {
 	
 	public String toString(){
 		return "Grain size: " + this.grainSize + " Grain amount: " + this.grainAmount;
+	}
+	
+	public void divideWorkLoad(Processor... p){
+		double tmp;
+		for (int i=0;i<p.length;i++){
+			p[i].setGrainSize(grainSize);
+		}
+		while (grainAmount > 0){
+			for (int i=0;i<p.length;i++){
+				if (grainAmount < grainSize){
+					tmp = p[i].getGrainAmount();
+					p[i].setGrainAmount(grainAmount);
+					grainAmount = 0;
+				}
+				else{
+					tmp = p[i].getGrainAmount();
+					p[i].setGrainAmount(tmp + grainSize);
+					grainAmount = grainAmount - grainSize;
+				}
+				
+			}
+		}
 	}
 	
 	
