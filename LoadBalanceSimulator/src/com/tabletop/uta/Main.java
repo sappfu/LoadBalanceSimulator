@@ -3,30 +3,38 @@ package com.tabletop.uta;
 import com.tabletop.uta.apptopology.Algorithm;
 import com.tabletop.uta.apptopology.Mapping;
 import com.tabletop.uta.apptopology.Task;
+import com.tabletop.uta.config.Config;
 import com.tabletop.uta.machtopology.Processor;
 
 
 public class Main {
 	
-	public static void main(String[] args){
-		Processor processor = new Processor(1, 1);
-		Processor processor2 = new Processor(2, 1);
-		Processor processor3 = new Processor(1, 2);
-		Processor processor4 = new Processor(1, 3);
+	public static void main(String[] args){		
+		Config.initProcessors(4, 5);
+		Config.initTasks(250, 2, 20);
 		
-		Task task0 = new Task(10, 1);
-		Task task1 = new Task(5, 0);
-		Task task2 = new Task(15, 0,1,3);
-		Task task3 = new Task(12, 1,2);
-		
-		Mapping.assignToProcessor(processor, task0);
-		Mapping.assignToProcessor(processor2, task1);
-		Mapping.assignToProcessor(processor3, task2);
-		Mapping.assignToProcessor(processor4, task3);
+		Mapping.calculateInitialMapping();
 		
 		
-		Algorithm algorithm = new Algorithm("Test", 3, 10, 200, 100);
+		Algorithm algorithm = new Algorithm("Test", 3, 10, 200);
+		
+		
+		while (algorithm.runOneExecutionStep()){
+			System.out.println(algorithm.getExecutionTime());
+		}
+		
 		System.out.println(algorithm.calculateExecutionTime());
+		
+		
+		
+		//divide algorithm into steps - done
+		//calculate numa nodes
+		//calculate compute or communication bound
+		//calculate new mapping
+		//calculate load balancing cost
+		
+		//migration of data cost?
+		
 		
 	}
 }

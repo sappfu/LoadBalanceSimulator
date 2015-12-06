@@ -32,25 +32,36 @@ public class Task {
 	public static int generateWorkLoad(){
 		Random r = new Random();
 		double randomValue = rangeMin + (rangeMax - rangeMin) * r.nextDouble();
-		new Task(randomValue/10);
+		new Task((int)randomValue/10, 1);
 		return factory.size()-1; //new workload will be added at this index 
 	}
 	
 	public static Task generateWorkLoad(int index){
-		return new Task(rangeMin/10 + index*10);
+		return new Task((int)rangeMin/10 + index*10, 1);
 	}
 	
-	double taskSize;
+	public static void printAllTasks(){
+		for (int i=0;i<factory.size();i++){
+			System.out.println(factory.get(i).toString());
+		}
+	}
+	
+	int taskSize;
 	int taskId;
+	int taskRemaining;
 	Processor assignedProcessor;
 	ArrayList<Integer> linkedTasks;
+	int stepSize;
 	
-	public Task(double taskSize, Integer... linkedTasks){
+	
+	public Task(int taskSize, int stepSize, Integer... linkedTasks){
 		if (factory == null){
 			Task.getFactory();
 		}
 		this.taskSize = taskSize;
+		this.taskRemaining = taskSize;
 		this.taskId = count++;
+		this.stepSize = stepSize;
 		this.linkedTasks = new ArrayList<Integer>();
 		for (Integer linkedTask : linkedTasks){
 			this.linkedTasks.add(linkedTask);
@@ -75,16 +86,30 @@ public class Task {
 		return totalDistance;
 	}
 	
-	public double getTaskSize() {
+	public int getTaskSize() {
 		return taskSize;
 	}
+	
+	public int getRemainingTask() {
+		return taskRemaining;
+	}
+
+	public void setRemainingTask(int taskSize) {
+		this.taskRemaining = taskSize;
+	}
+	
+	
 
 	public int[] calculateDistance(int taskId){
 		return this.assignedProcessor.calculateDistance(factory.get(taskId).assignedProcessor);
 	}
 	
 	public String toString(){
-		return "Task size: " + this.taskSize;
+		String tmp = "Task Id: " + this.taskId + " Task size: " + this.taskRemaining;
+		for (Integer task : linkedTasks){
+			tmp = tmp + " Linked task: " + task;
+		}
+		return tmp;
 	}
 
 	

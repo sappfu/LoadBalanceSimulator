@@ -31,28 +31,39 @@ public class Processor {
 		return factory.get(index-1);
 	}
 	
+	public static void printAllProcessors(){
+		for (Processor p : factory){
+			System.out.println(p.toString());
+		}
+	}
 	
 	
-	private int rank;
-	private int node;
+	
+	private int core;
+	private int processor;
 	
 	private ArrayList<Task> assignedTasks;
 	
 	
-	public Processor(int rank, int node){
+	public Processor(int core, int processor){
 		if (factory == null){
 			Processor.getFactory();
 		}
-		this.rank = rank;
-		this.node = node;
+		this.core = core;
+		this.processor = processor;
 		assignedTasks = new ArrayList<Task>();
 		factory.add(this);
 	}
 
 	public int[] calculateDistance(Processor p){
 		int[] distance = new int[2]; //inner distance and outer distance
-		distance[0] = Math.abs(this.getRank() - p.getRank());
-		distance[1] = Math.abs(this.getNode() - p.getNode());
+		distance[1] = Math.abs(this.getProcessor() - p.getProcessor());
+		if (distance[1] > 0){
+			distance[0] = 0;
+		}
+		else{
+			distance[0] = Math.abs(this.getCore() - p.getCore());
+		}
 		return distance;
 	}
 	
@@ -64,28 +75,48 @@ public class Processor {
 		return time;
 	}
 	
+	public double getRemainingExecutionTimeForTasks(){
+		double time = 0.0;
+		for (Task t : this.assignedTasks){
+			time += t.getRemainingTask();
+		}
+		return time;
+	}
+	
+	
+	
+	public Task getNextTask(){
+		for (int i=0;i<assignedTasks.size();i++){
+			if (assignedTasks.get(i).getRemainingTask() > 0){
+				return assignedTasks.get(i);
+			}
+		}
+		return null;
+	}
+	
 	public String toString(){
 		String tmp = "";
 		for (Task task : assignedTasks){
 			tmp += task.toString() + " | ";
 		}
-		return "Rank: " + rank + " Node: " + node + " Task list: " + tmp;
+		return "Core: " + core + " Processor: " + processor + " Task list: " + tmp;
 	}
 
-	public int getRank() {
-		return rank;
+
+	public int getCore() {
+		return core;
 	}
 
-	public void setRank(int rank) {
-		this.rank = rank;
+	public void setCore(int core) {
+		this.core = core;
 	}
 
-	public int getNode() {
-		return node;
+	public int getProcessor() {
+		return processor;
 	}
 
-	public void setNode(int node) {
-		this.node = node;
+	public void setProcessor(int processor) {
+		this.processor = processor;
 	}
 
 	public double getInnerNodeCommunicationCost() {
