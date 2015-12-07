@@ -19,27 +19,36 @@ public class Task {
 		return factory;
 	}
 	
-	public static Task getWorkLoad(int index){
-		if (factory == null){
-			Task.getFactory();
-			for (int i=0;i<index;i++){
-				Task.generateWorkLoad(i);
-			}
+	public static Task getTask(int index){
+		try {
+			return factory.get(index);
 		}
-		return factory.get(index-1);
+		catch(Exception e){
+			throw new RuntimeException("No such task exists!");
+		}
 	}
 	
-	public static int generateWorkLoad(){
-		Random r = new Random();
-		double randomValue = rangeMin + (rangeMax - rangeMin) * r.nextDouble();
-		new Task((int)randomValue/10, 1);
-		return factory.size()-1; //new workload will be added at this index 
+	public static void clear(){
+		for (Task t : factory){
+			t.unassignFromProcessor();
+		}
+		factory.clear();
 	}
+
+
 	
-	public static Task generateWorkLoad(int index){
-		return new Task((int)rangeMin/10 + index*10, 1);
+	public int getTaskId() {
+		return taskId;
 	}
-	
+
+	public boolean isAssigned() {
+		return assigned;
+	}
+
+	public void setAssigned(boolean assigned) {
+		this.assigned = assigned;
+	}
+
 	public static void printAllTasks(){
 		for (int i=0;i<factory.size();i++){
 			System.out.println(factory.get(i).toString());
@@ -52,6 +61,7 @@ public class Task {
 	Processor assignedProcessor;
 	ArrayList<Integer> linkedTasks;
 	int stepSize;
+	boolean assigned;
 	
 	
 	public Task(int taskSize, int stepSize, Integer... linkedTasks){
@@ -66,11 +76,18 @@ public class Task {
 		for (Integer linkedTask : linkedTasks){
 			this.linkedTasks.add(linkedTask);
 		}
+		boolean assigned = false;
 		factory.add(this);
 	}
 	
 	public void assignToProcessor(Processor p){
 		this.assignedProcessor = p;
+		this.assigned = true;
+	}
+	
+	public void unassignFromProcessor(){
+		this.assignedProcessor = null;
+		this.assigned = false;
 	}
 	
 	public int[] getTotalDistanceToLinkedTasks(){

@@ -8,8 +8,7 @@ import com.tabletop.uta.machtopology.Processor;
 public class Algorithm {
 	
 	private static ArrayList<Algorithm> factory = null;
-	private static double rangeMin = 1000.0;
-	private static double rangeMax = 2000.0;
+	private static boolean debug = false;
 	
 	//Singleton pattern
 	public static ArrayList<Algorithm> getFactory(){
@@ -17,41 +16,18 @@ public class Algorithm {
 			factory = new ArrayList<Algorithm>();
 		}
 		return factory;
-	}
+	}	
 	
-	public static Algorithm getAlgorithm(int index){
-		if (factory == null){
-			Algorithm.getFactory();
-			for (int i=0;i<index;i++){
-				Algorithm.generateAlgorithm(i);
-			}
-		}
-		return factory.get(index-1);
+	public static void clear(){
+		factory.clear();
 	}
-	
-	public static int generateAlgorithm(){
-		Random r = new Random();
-		double randomValue = rangeMin + (rangeMax - rangeMin) * r.nextDouble();
-		new Algorithm("" + randomValue, randomValue/10, randomValue, 200);
-		return factory.size()-1;
-	}
-	
-	public static int generateAlgorithm(int value){
-		new Algorithm("" + value, rangeMax/10 + value*20, rangeMax/10 + value*100, 200);
-		return factory.size()-1;
-	}
-	
 
-	
-	
-	
-	
-	
 	String name;
 	double innerNodeCommunicationAmount;
 	double outerNodeCommunicationAmount;
 	double sequentialTime;
 	double executionTime;
+	double communicationCost;
 	
 	public Algorithm(String name, double innerNodeCommunicationAmount, double outerNodeCommunicationAmount, double sequentialTime){
 		if (factory == null){
@@ -62,6 +38,7 @@ public class Algorithm {
 		this.outerNodeCommunicationAmount = outerNodeCommunicationAmount;
 		this.sequentialTime = sequentialTime;
 		this.executionTime = 0.0;
+		this.communicationCost = 0.0;
 		factory.add(this);
 	}
 	
@@ -73,8 +50,8 @@ public class Algorithm {
 		for (Processor p : processors){
 			if (p.getNextTask() != null){
 				tmp = p.getNextTask().getTotalDistanceToLinkedTasks();
-				executionTime += tmp[0] * this.innerNodeCommunicationAmount * Processor.innerNodeCommunicationCost / p.getNextTask().getTaskSize();
-				executionTime += tmp[1] * this.outerNodeCommunicationAmount * Processor.outerNodeCommunicationCost / p.getNextTask().getTaskSize();
+				communicationCost += tmp[0] * this.innerNodeCommunicationAmount * Processor.innerNodeCommunicationCost / p.getNextTask().getTaskSize();
+				communicationCost += tmp[1] * this.outerNodeCommunicationAmount * Processor.outerNodeCommunicationCost / p.getNextTask().getTaskSize();
 				p.getNextTask().setRemainingTask(p.getNextTask().getRemainingTask() - 1);
 				stillProcessing = true;
 			}
@@ -86,7 +63,8 @@ public class Algorithm {
 	}
 	
 	public double calculateExecutionTime(){
-		double executionTime = 0.0;
+		double totalExecutionTime = 0.0;
+		double totalCommunicationCost = 0.0;
 		
 		
 		//get total distance between tasks
@@ -99,6 +77,7 @@ public class Algorithm {
 			distance[0] += tmp[0];
 			distance[1] += tmp[1];
 		}
+		if (debug)
 		System.out.println("Total inner distance: " + distance[0] + " Total outer distance: " + distance[1]);
 		
 		//get highest task time for processors
@@ -107,18 +86,26 @@ public class Algorithm {
 		for (Processor p : Processor.getFactory()){
 			temp = p.getExecutionTimeForTasks();
 			if (temp > taskTime){
+				if (debug)
+					System.out.println("Processor: " + p.getProcessor() + " Core: " + p.getCore() + " Time: " + temp);
 				taskTime = temp;
 			}
 		}
 		System.out.println("Highest processor task time: " + taskTime);
-		
-		executionTime += distance[0] * this.innerNodeCommunicationAmount * Processor.innerNodeCommunicationCost;
-		executionTime += distance[1] * this.outerNodeCommunicationAmount * Processor.outerNodeCommunicationCost;
-		executionTime += taskTime;
-		executionTime += this.sequentialTime;
-		return executionTime;
+		 
+		totalCommunicationCost += distance[0] * this.innerNodeCommunicationAmount * Processor.innerNodeCommunicationCost;
+		totalCommunicationCost += distance[1] * this.outerNodeCommunicationAmount * Processor.outerNodeCommunicationCost;
+		totalExecutionTime += taskTime;
+		totalExecutionTime += this.sequentialTime;
+		if (debug)
+			System.out.println("Execution Time: " + totalExecutionTime + " Communication Cost: " + totalCommunicationCost + " Total Time: " + (totalExecutionTime + totalCommunicationCost));
+		return totalExecutionTime + totalCommunicationCost;
 	}
 	
+	public double getCommunicationCost() {
+		return communicationCost;
+	}
+
 	public double getExecutionTime() {
 		return executionTime;
 	}

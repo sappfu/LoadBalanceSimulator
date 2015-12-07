@@ -12,6 +12,7 @@ public class Processor {
 	private static double rangeMax = 2000.0;
 	public static double innerNodeCommunicationCost = 3;
 	public static double outerNodeCommunicationCost = 5;
+	public static boolean debug = false;
 	
 	//Singleton pattern
 	public static ArrayList<Processor> getFactory(){
@@ -22,13 +23,13 @@ public class Processor {
 	}
 	
 	public static Processor getProcessor(int index){
-		if (factory == null){
-			Algorithm.getFactory();
-			for (int i=0;i<index;i++){
-				Algorithm.generateAlgorithm(i);
-			}
+		try{
+			Processor p = factory.get(index);
+			return p;
 		}
-		return factory.get(index-1);
+		catch(Exception e){
+			throw new RuntimeException("No such processor!");
+		}
 	}
 	
 	public static void printAllProcessors(){
@@ -36,6 +37,29 @@ public class Processor {
 			System.out.println(p.toString());
 		}
 	}
+	
+	public static double[][] constructDistanceGraph(){
+		ArrayList<Processor> processors = Processor.getFactory();
+		double[][] graph = new double[processors.size()][processors.size()];
+		for (int i=0;i<processors.size();i++){
+			for (int j=0;j<processors.size();j++){
+				graph[i][j] = processors.get(i).getDistance(processors.get(j));
+				if (debug)
+					System.out.printf("%3d | ", (int)graph[i][j]);
+			}
+			if (debug)
+			System.out.print("\n");
+		}
+		return graph;
+	}
+	
+	public static void clear(){
+		for (Processor p : factory){
+			p.unassignTasks();
+		}
+		factory.clear();
+	}
+
 	
 	
 	
@@ -58,13 +82,13 @@ public class Processor {
 	public int[] calculateDistance(Processor p){
 		int[] distance = new int[2]; //inner distance and outer distance
 		distance[1] = Math.abs(this.getProcessor() - p.getProcessor());
-		if (distance[1] > 0){
-			distance[0] = 0;
-		}
-		else{
-			distance[0] = Math.abs(this.getCore() - p.getCore());
-		}
+		distance[0] = Math.abs(this.getCore() - p.getCore());
 		return distance;
+	}
+	
+	public double getDistance(Processor p){
+		int[] distance = this.calculateDistance(p);
+		return distance[0] * Processor.innerNodeCommunicationCost + distance[1] * Processor.outerNodeCommunicationCost;
 	}
 	
 	public double getExecutionTimeForTasks(){
@@ -83,6 +107,10 @@ public class Processor {
 		return time;
 	}
 	
+	public void unassignTasks(){
+		assignedTasks.clear();
+	}
+	
 	
 	
 	public Task getNextTask(){
@@ -97,9 +125,9 @@ public class Processor {
 	public String toString(){
 		String tmp = "";
 		for (Task task : assignedTasks){
-			tmp += task.toString() + " | ";
+			tmp += task.getTaskId() + " | ";
 		}
-		return "Core: " + core + " Processor: " + processor + " Task list: " + tmp;
+		return "Processor: " + processor + " Core: " + core + " Task list: " + tmp;
 	}
 
 
