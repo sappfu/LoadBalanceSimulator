@@ -28,33 +28,47 @@ public class Task {
 		}
 	}
 	
-	public static void clear(){
-		for (Task t : factory){
-			t.unassignFromProcessor();
-		}
-		factory.clear();
-	}
-
-
-	
-	public int getTaskId() {
-		return taskId;
-	}
-
-	public boolean isAssigned() {
-		return assigned;
-	}
-
-	public void setAssigned(boolean assigned) {
-		this.assigned = assigned;
-	}
-
 	public static void printAllTasks(){
 		for (int i=0;i<factory.size();i++){
 			System.out.println(factory.get(i).toString());
 		}
 	}
 	
+	public static void clear(){
+		for (Task t : factory){
+			t.unassignFromProcessor();
+		}
+		factory.clear();
+	}
+	
+	public static int[][] createTaskGraph(){
+		int[][] graph = new int[factory.size()][factory.size()];
+		
+		for (int i=0;i<factory.size();i++){
+			for (int j=0;j<factory.get(i).linkedTasks.size();j++){
+				graph[i][factory.get(i).linkedTasks.get(j)] = 1;
+			}
+		}
+		return graph;
+	}
+	
+	public static void printTaskGraph(){
+		int[][] graph = Task.createTaskGraph();
+		System.out.print("    *");
+		for (int i=0;i<factory.size();i++){
+			System.out.printf("%3d *", i);
+		}
+		System.out.print("\n");
+		
+		for (int i=0;i<factory.size();i++){
+			System.out.printf("%3d *", i);
+			for (int j=0;j<factory.size();j++){
+				System.out.printf("%3d |" , graph[i][j]);
+			}
+			System.out.print("\n");
+		}
+	}
+
 	int taskSize;
 	int taskId;
 	int taskRemaining;
@@ -90,6 +104,12 @@ public class Task {
 		this.assigned = false;
 	}
 	
+	public void unassign(){
+		this.assignedProcessor.unassignTask(this);
+		this.assignedProcessor = null;
+		this.assigned = false;
+	}
+
 	public int[] getTotalDistanceToLinkedTasks(){
 		int[] totalDistance = new int[2];
 		totalDistance[0] = 0;
@@ -115,8 +135,22 @@ public class Task {
 		this.taskRemaining = taskSize;
 	}
 	
-	
+	public int getTaskId() {
+		return taskId;
+	}
 
+	public boolean isAssigned() {
+		return assigned;
+	}
+
+	public void setAssigned(boolean assigned) {
+		this.assigned = assigned;
+	}
+
+	public int getStepSize() {
+		return stepSize;
+	}
+	
 	public int[] calculateDistance(int taskId){
 		return this.assignedProcessor.calculateDistance(factory.get(taskId).assignedProcessor);
 	}

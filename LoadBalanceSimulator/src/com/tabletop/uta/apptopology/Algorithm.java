@@ -42,17 +42,20 @@ public class Algorithm {
 		factory.add(this);
 	}
 	
-	public boolean runOneExecutionStep(){
+	public boolean runOneExecutionStep(int index){
 		int[] tmp;
 		
 		ArrayList<Processor> processors = Processor.getFactory();
 		boolean stillProcessing = false;
+		int i=0;
 		for (Processor p : processors){
 			if (p.getNextTask() != null){
 				tmp = p.getNextTask().getTotalDistanceToLinkedTasks();
 				communicationCost += tmp[0] * this.innerNodeCommunicationAmount * Processor.innerNodeCommunicationCost / p.getNextTask().getTaskSize();
 				communicationCost += tmp[1] * this.outerNodeCommunicationAmount * Processor.outerNodeCommunicationCost / p.getNextTask().getTaskSize();
-				p.getNextTask().setRemainingTask(p.getNextTask().getRemainingTask() - 1);
+				if (index % p.getNextTask().getStepSize() == 0){
+					p.getNextTask().setRemainingTask(p.getNextTask().getRemainingTask() - 1);
+				}
 				stillProcessing = true;
 			}
 		}

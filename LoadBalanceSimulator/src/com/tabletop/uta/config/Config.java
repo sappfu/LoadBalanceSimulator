@@ -28,10 +28,11 @@ public class Config {
 		}
 	}
 	
-	public static void initTasks(int tasks, int stepSize, int amount){
-		int nextFour, nextThree, nextTwo, next, size;
+	public static void initTasks(int tasks, int step, int amount){
+		int nextFour, nextThree, nextTwo, next, size, stepSize;
 		Task task;
 		for (int i=0;i<tasks;i++){
+			stepSize = step + i % 10;
 			if (i % 2 == 0){
 				size = amount + i * 5;
 				if (i == tasks - 1){

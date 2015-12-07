@@ -111,7 +111,9 @@ public class Processor {
 		assignedTasks.clear();
 	}
 	
-	
+	public void unassignTask(Task t){
+		assignedTasks.remove(t);
+	}
 	
 	public Task getNextTask(){
 		for (int i=0;i<assignedTasks.size();i++){
