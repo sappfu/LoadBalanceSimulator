@@ -8,10 +8,8 @@ import com.tabletop.uta.apptopology.Task;
 public class Processor {
 
 	private static ArrayList<Processor> factory = null;
-	private static double rangeMin = 1000.0;
-	private static double rangeMax = 2000.0;
 	public static double innerNodeCommunicationCost = 3;
-	public static double outerNodeCommunicationCost = 5;
+	public static double outerNodeCommunicationCost = 10;
 	public static boolean debug = false;
 	
 	//Singleton pattern
