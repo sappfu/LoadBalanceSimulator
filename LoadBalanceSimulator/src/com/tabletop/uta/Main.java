@@ -11,56 +11,77 @@ import com.tabletop.uta.machtopology.Processor;
 
 public class Main {
 	
+	public static int LOAD_BALANCE_STEPS = 6100;
+	public static int RUN_WHAT = 1;
+	public static int CORES = 8;
+	public static int PROCESSORS = 5;
+	public static int TASKS = 150;
+	public static int STEPSIZE = 5;
+	public static int AMOUNT = 2000;
+	public static boolean DEBUG = false;
+	public static int NUMA_NODE_DISTANCE = 2;
+	
 	public static void main(String[] args){		
-		Algorithm algorithm = new Algorithm("Test", 3, 10, 200);
-//		Config.initProcessors(2, 2);
-//		Config.initTasks(5, 2, 200);
-//		Mapping.calculateInitialMapping();
-//		int i=1;
-//		while (algorithm.runOneExecutionStep(i++));		
-//		System.out.println(algorithm.getExecutionTime() + " | " +  algorithm.getCommunicationCost());
-//		
-//		Config.clearConfig(true, true, false, true);
+		Algorithm algorithm = new Algorithm("Test", 10, 3, 200);
+		double loadBalanceCost;
+		int i, j;
+		switch(RUN_WHAT){
+		case 1:
+			Config.initProcessors(CORES, PROCESSORS);
+			Config.initTasks(TASKS, STEPSIZE, AMOUNT);
+			Mapping.calculateInitialMapping();
+			i=1;
+			while (algorithm.runOneExecutionStep(i++));		
+			System.out.println(algorithm.getExecutionTime() + " | " +  algorithm.getCommunicationCost());
+			System.out.println("Total Execution Time: " + (algorithm.getExecutionTime() + algorithm.getCommunicationCost()));
+			break;
+		case 2:		
+			Config.initProcessors(CORES, PROCESSORS);
+			Config.initTasks(TASKS, STEPSIZE, AMOUNT);
+	
+			LoadBalanceUtils.calculateNumaNodes(NUMA_NODE_DISTANCE);
+			Mapping.calculateInitialNumaMapping();
 		
-		Config.initProcessors(8, 5);
-		Config.initTasks(15, 5, 2000);
 		
-//		Task.printTaskGraph();
-//		Task.printAllTasks();
+			j=1;
+			while (algorithm.runOneExecutionStep(j++));
+			System.out.println(algorithm.getExecutionTime() + " | " +  algorithm.getCommunicationCost());
+			System.out.println("Total Execution Time: " + (algorithm.getExecutionTime() + algorithm.getCommunicationCost()));
+			break;
+		case 3:		
+			Config.initProcessors(CORES, PROCESSORS);
+			Config.initTasks(TASKS, STEPSIZE, AMOUNT);
+	
+			LoadBalanceUtils.calculateNumaNodes(NUMA_NODE_DISTANCE);
+			Mapping.calculateInitialNumaMapping();
 		
-		LoadBalanceUtils.calculateNumaNodes(5);
-		Mapping.calculateInitialNumaMapping();
 		
-		
-		int j=1;
-		boolean debug = false;
-		double loadBalanceCost = 0.0;
-		while (algorithm.runOneExecutionStep(j)){
-			if (j++ % 1000 == 0){
-				if (debug){
-					Processor.printAllProcessors();
-					System.out.println("  End Print Before Mapping ");
-				}
-				loadBalanceCost += Mapping.calculateNumaMapping();
-				if (debug){
-					Processor.printAllProcessors();
-					System.out.println("  End Print After Mapping ");
+			j=1;
+			loadBalanceCost = 0.0;
+			while (algorithm.runOneExecutionStep(j)){
+				if (j++ % LOAD_BALANCE_STEPS == 0){
+					if (DEBUG){
+						Processor.printAllProcessors();
+						System.out.println("  End Print Before Mapping ");
+					}
+					loadBalanceCost += Mapping.calculateNumaMapping();
+					if (DEBUG){
+						Processor.printAllProcessors();
+						System.out.println("  End Print After Mapping ");
+					}
 				}
 			}
+			System.out.println(algorithm.getExecutionTime() + " | " +  algorithm.getCommunicationCost() + " | " + loadBalanceCost);
+			System.out.println("Total Execution Time: " + (algorithm.getExecutionTime() + algorithm.getCommunicationCost() + loadBalanceCost));
+			break;
 		}
-		
-		System.out.println(algorithm.getExecutionTime() + " | " +  algorithm.getCommunicationCost() + " | " + loadBalanceCost);
-		System.out.println("Total Execution Time: " + (algorithm.getExecutionTime() + algorithm.getCommunicationCost() + loadBalanceCost));
-		
-//		NumaNode.printAllNumaNodes();33605.0 | 21540.000000040996
-		
+
 		//divide algorithm into steps - done
 		//calculate numa nodes - done
-		//calculate compute or communication bound
-		//calculate new mapping
-		//calculate load balancing cost
+		//calculate compute or communication bound - not done
+		//calculate new mapping - done
+		//calculate load balancing cost - done
 		
-		//migration of data cost?
 		
 		
 	}
