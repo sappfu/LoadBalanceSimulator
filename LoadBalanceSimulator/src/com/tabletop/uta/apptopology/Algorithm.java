@@ -9,6 +9,8 @@ public class Algorithm {
 	
 	private static ArrayList<Algorithm> factory = null;
 	private static boolean debug = false;
+	private	static int totalInnerCommunicationAmount = 0;
+	private	static int totalOuterCommunicationAmount = 0;
 	
 	//Singleton pattern
 	public static ArrayList<Algorithm> getFactory(){
@@ -51,8 +53,10 @@ public class Algorithm {
 		for (Processor p : processors){
 			if (p.getNextTask() != null){
 				tmp = p.getNextTask().getTotalDistanceToLinkedTasks();
-				communicationCost += tmp[0] * this.innerNodeCommunicationAmount * Processor.innerNodeCommunicationCost / p.getNextTask().getTaskSize();
-				communicationCost += tmp[1] * this.outerNodeCommunicationAmount * Processor.outerNodeCommunicationCost / p.getNextTask().getTaskSize();
+				communicationCost += tmp[0] * p.getNextTask().getInnerNodeCommunicationAmount() * Processor.innerNodeCommunicationCost / p.getNextTask().getTaskSize();
+				totalInnerCommunicationAmount += p.getNextTask().getInnerNodeCommunicationAmount();
+				communicationCost += tmp[1] * p.getNextTask().getOuterNodeCommunicationAmount() * Processor.outerNodeCommunicationCost / p.getNextTask().getTaskSize();
+				totalOuterCommunicationAmount += p.getNextTask().getOuterNodeCommunicationAmount();
 				if (index % p.getNextTask().getStepSize() == 0){
 					p.getNextTask().setRemainingTask(p.getNextTask().getRemainingTask() - 1);
 				}
@@ -80,6 +84,14 @@ public class Algorithm {
 			distance[0] += tmp[0];
 			distance[1] += tmp[1];
 		}
+		
+		// get the total inner Node communication Amount
+		for (Task t : Task.getFactory() ) {
+			for( Integer linkedTask : t.linkedTasks.keySet() ) {
+				totalInnerCommunicationAmount += t.linkedTasks.get(linkedTask);
+			}
+		}
+
 		if (debug)
 		System.out.println("Total inner distance: " + distance[0] + " Total outer distance: " + distance[1]);
 		
@@ -96,8 +108,8 @@ public class Algorithm {
 		}
 		System.out.println("Highest processor task time: " + taskTime);
 		 
-		totalCommunicationCost += distance[0] * this.innerNodeCommunicationAmount * Processor.innerNodeCommunicationCost;
-		totalCommunicationCost += distance[1] * this.outerNodeCommunicationAmount * Processor.outerNodeCommunicationCost;
+		totalCommunicationCost += distance[0] * totalInnerCommunicationAmount * Processor.innerNodeCommunicationCost;
+		totalCommunicationCost += distance[1] * totalOuterCommunicationAmount * Processor.outerNodeCommunicationCost;
 		totalExecutionTime += taskTime;
 		totalExecutionTime += this.sequentialTime;
 		if (debug)

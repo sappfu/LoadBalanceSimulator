@@ -76,7 +76,7 @@ public class Task {
 	int taskId;
 	int taskRemaining;
 	Processor assignedProcessor;
-	HashMap<Integer,Integer> linkedTasks;
+	HashMap<Integer,Integer> linkedTasks; // maps the task to the amount of communication (frequency)
 	int stepSize;
 	boolean assigned;
 	
@@ -158,13 +158,28 @@ public class Task {
 		return this.assignedProcessor.calculateDistance(factory.get(taskId).assignedProcessor);
 	}
 	
+	// assumes Nodes only have one processor
 	public int getInnerNodeCommunicationAmount() {
 		int sum = 0;
 		for( Integer linkedTask : this.linkedTasks.keySet() ) {
-			if ( this.assignedProcessor == linkedTask.)
+			if ( this.assignedProcessor == factory.get(linkedTask).assignedProcessor ) {
+				sum += this.linkedTasks.get(linkedTask);
+			}
 		}
+		return sum;
 	}
-	
+
+	// assumes Nodes only have one processor
+	public int getOuterNodeCommunicationAmount() {
+		int sum = 0;
+		for( Integer linkedTask : this.linkedTasks.keySet() ) {
+			if ( this.assignedProcessor != factory.get(linkedTask).assignedProcessor ) {
+				sum += this.linkedTasks.get(linkedTask);
+			}
+		}
+		return sum;
+	}
+
 	public String toString(){
 		String tmp = "Task Id: " + this.taskId + " Task size: " + this.taskRemaining;
 		for (Integer task : linkedTasks.keySet()){
