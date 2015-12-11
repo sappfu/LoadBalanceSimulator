@@ -1,7 +1,9 @@
 package com.tabletop.uta.apptopology;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Random;
+
 import com.tabletop.uta.machtopology.Processor;
 
 public class Task {
@@ -9,6 +11,7 @@ public class Task {
 	private static ArrayList<Task> factory = null;
 	private static double rangeMin = 1000.0;
 	private static double rangeMax = 2000.0;
+	private static int communicationAmountModifier = 10;
 	private static int count = 0;
 	
 	//Singleton pattern
@@ -73,7 +76,7 @@ public class Task {
 	int taskId;
 	int taskRemaining;
 	Processor assignedProcessor;
-	ArrayList<Integer> linkedTasks;
+	HashMap<Integer,Integer> linkedTasks;
 	int stepSize;
 	boolean assigned;
 	
@@ -86,9 +89,9 @@ public class Task {
 		this.taskRemaining = taskSize;
 		this.taskId = count++;
 		this.stepSize = stepSize;
-		this.linkedTasks = new ArrayList<Integer>();
+		this.linkedTasks = new HashMap<Integer,Integer>();
 		for (Integer linkedTask : linkedTasks){
-			this.linkedTasks.add(linkedTask);
+			this.linkedTasks.put(linkedTask,linkedTask%communicationAmountModifier);
 		}
 		boolean assigned = false;
 		factory.add(this);
@@ -115,7 +118,7 @@ public class Task {
 		totalDistance[0] = 0;
 		totalDistance[1] = 0;
 		int[] tmp;
-		for (Integer i : this.linkedTasks){
+		for (Integer i : this.linkedTasks.keySet()){
 			tmp = this.calculateDistance(i);
 			totalDistance[0] += tmp[0];
 			totalDistance[1] += tmp[1];
@@ -155,9 +158,16 @@ public class Task {
 		return this.assignedProcessor.calculateDistance(factory.get(taskId).assignedProcessor);
 	}
 	
+	public int getInnerNodeCommunicationAmount() {
+		int sum = 0;
+		for( Integer linkedTask : this.linkedTasks.keySet() ) {
+			if ( this.assignedProcessor == linkedTask.)
+		}
+	}
+	
 	public String toString(){
 		String tmp = "Task Id: " + this.taskId + " Task size: " + this.taskRemaining;
-		for (Integer task : linkedTasks){
+		for (Integer task : linkedTasks.keySet()){
 			tmp = tmp + " Linked task: " + task;
 		}
 		return tmp;

@@ -55,7 +55,7 @@ public class Mapping {
 				}
 			}
 			Mapping.assignToNode(shortestQueueNode, task);
-			for (Integer index : task.linkedTasks){
+			for (Integer index : task.linkedTasks.keySet()){
 				if (!Task.getTask(index).isAssigned()){
 					Mapping.assignToNode(shortestQueueNode, Task.getTask(index));
 				}
